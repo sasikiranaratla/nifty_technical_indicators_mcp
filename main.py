@@ -1,7 +1,6 @@
 import yfinance as yf
 import talib
 import pandas as pd
-import json
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("nifty_technical_indicators_server")
@@ -12,7 +11,6 @@ def get_nse_data(symbol):
   startdate = (pd.Timestamp.today() - pd.Timedelta(days=365)).strftime("%Y-%m-%d")
   df = yf.download(symbol+".NS", start=startdate, end=enddate, interval="1d")
 
-  # Clean up columns to match TA-Lib style
   df = df.rename(columns={
     "Open": "Open",
     "High": "High",
@@ -43,7 +41,6 @@ def macd(df):
     if close.ndim != 1:
         close = close.flatten()
     macd, macdsignal, macdhist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
-    # Return only the last values as floats
     return {
         "MACD_Line": float(macd[-1]),
         "MACD_Signal": float(macdsignal[-1]),
@@ -86,7 +83,6 @@ def bollinger(df):
     if close.ndim != 1:
         close = close.flatten()
     upper, middle, lower = talib.BBANDS(close, timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
-    # Return only the last values as floats
     return {
         "BB_Upper": float(upper[-1]),
         "BB_Middle": float(middle[-1]),
@@ -139,5 +135,4 @@ def get_technical_indicators(ticker):
     return result
 
 if __name__ == "__main__":
-   # print(get_technical_indicators("SEQUENT"))
     mcp.run(transport='stdio')

@@ -1,0 +1,4 @@
+pandas
+TA-Lib
+yfinance
+mcp
